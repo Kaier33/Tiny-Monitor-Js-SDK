@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.23.0/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="./dist/tiny-monitor-sdk.js"></script>
+  </head>
+  <body>
+    <button id="jump">测试用. 跳出去</button>
+    <button id="post">手动上报</button>
+    <button id="clear">清除所有错误</button>
+
+    <h3>需求: 搜集上报，采集聚合，可视分析，监控告警</h3>
+    <p>报错的归类:</p>
+    <ul>
+      <li>try-catch 全局监控 JS 异常 window.onerror 全局监控静态资源异常</li>
+      <li>
+        window.addEventListener 捕获没有 catch 的 Promise 异常用
+        unhandledrejection
+      </li>
+      <li>
+        Vue errorHandler 和 React componentDidCatch Axios
+        请求统一异常处理用拦截器
+      </li>
+      <li>interceptors(可以暴露个方法出来收集接口报错)</li>
+    </ul>
+
+    <p>系统功能</p>
+    <ol>
+      <li>收集前端错误（原生、Vue）</li>
+      <li>错误上报逻辑</li>
+      <li>错误日志采集服务 by node</li>
+      <li>编写webpack插件自动上传sourcemap</li>
+      <li>利用sourcemap还原压缩代码源码位置</li>
+    </ol>
+
+    <h3>前端探针todo:</h3>
+    <ul>
+      <li>
+        需要监控的对象: xhr, fetch, error (常规报错, 资源报错, 异步事件中的报错)
+      </li>
+      <li>错误标识 / 错误过滤 / 错误接收 / 错误存储</li>
+      <li>上报策略</li>
+      <li>存储策略 indexDB 或者降级 localstore</li>
+      <li>日志加密</li>
+      <p>
+        项目管理: Monorepo (分模块打包、分模块热更新、分包发布。抽离抽象类,
+        工具类到某个包)
+      </p>
+    </ul>
+    <h3>服务端todo:</h3>
+    <ul>
+      <li>接收前端返回的数据</li>
+      <li>系统运行错误收集. 接口响应错误</li>
+      <li>用户登录&注册 / 监控项目创建&关联</li>
+      <li>jwt验证</li>
+      <li>服务端并发控制</li>
+      <li>邮件通知告警</li>
+      <li>可视化分析</li>
+      <li>后续: nest重构</li>
+    </ul>
+    <h3>可视化分析todo</h3>
+    <ul>
+      <li>项目选型 react + antd + echarts</li>
+      <li>报错信息 统计 / 归类/ 分析</li>
+    </ul>
+
+    <h3>待解决点 和 疑惑点</h3>
+    <p>前端sdk</p>
+    <ul>
+      <li>用户行为栈怎么获取和更新</li>
+      <li>收集错误的采样控制</li>
+      <li>
+        性能监控 (常见术语:
+        FP、FCP、FMP、TTI、LCP、TTFB、FCI、FID、DCL、L、Speed Index)
+      </li>
+      <li>录制页面并回放页面 (开源包rrweb)</li>
+    </ul>
+    <p>服务端</p>
+    <ul>
+      <li>
+        如何处理上报 高并发量 (redis + rocketMQ) (ELK + kafka
+        用于搭建日志收集系统集群)
+      </li>
+      <li>服务端压测. 最高QPS是多少</li>
+      <li>错误事件聚合, 聚合的方式是怎么样的</li>
+    </ul>
+
+    <!-- vue -->
+    <h1>Vue app</h1>
+    <div id="app">{{message}}</div>
+  </body>
+</html>
+<script>
+  document.cookie = "dmiddle_sso_token=2333";
+  console.log(document.cookie);
+  TinyMonitorSdk.init({
+    dsn: "http://127.0.0.1:3333",
+    key: 2333,
+    Vue: Vue,
+  });
+
+  new Promise((resolve) => {
+    throw "2333";
+  });
+
+  var app = new Vue({
+    el: "#app",
+    data: {
+      message: "Hello Vue!",
+    },
+    created: function () {
+      this._NULL.empty = 233;
+    },
+  });
+  setTimeout(() => {
+    throw new Error('manual error')
+  })
+  axios("http://127.0.0.1:3333/succ").then((res) => {
+    console.log("res:", res);
+  });
+  axios("http://127.0.0.1:3333/failed").then((res) => {
+    console.log("res:", res);
+  });
+  axios("http://127.0.0.1:3333/server-err").then((res) => {
+    console.log("res:", res);
+  });
+
+  const xhr = new XMLHttpRequest();
+  xhr.open("get", "http://127.0.0.1:3333/succ");
+  xhr.send();
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState == 4) {
+      console.log("xhr_done:", xhr.responseText);
+    }
+  };
+
+  const xhr2 = new XMLHttpRequest();
+  xhr2.open("post", "http://127.0.0.1:3333/postReport");
+  xhr2.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xhr2.send({ a: 233 });
+  xhr2.onreadystatechange = function () {
+    if (xhr2.readyState == 4 && xhr2.status >= 200 && xhr2.status < 400) {
+      console.log("xhr_done:", xhr2.responseText);
+    }
+  };
+  throw new Error('nonon')
+
+  setTimeout(() => {
+  asd.asd()
+  }, 3000)
+  document.querySelector('#asdas').height = 233
+</script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue333.js"></script> -->
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue@2/dist/asda.css"> -->
+<script>
+  document.querySelector("#jump").addEventListener("click", function () {
+    location.href = "https://www.baidu.com";
+  });
+  document.querySelector("#post").addEventListener("click", function () {
+    TinyMonitorSdk.manualPost();
+  });
+  document.querySelector("#clear").addEventListener("click", function () {
+    TinyMonitorSdk.clearErrorStore();
+  });
+</script>
