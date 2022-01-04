@@ -99,7 +99,7 @@
   document.cookie = "dmiddle_sso_token=2333";
   console.log(document.cookie);
   TinyMonitorSdk.init({
-    dsn: "http://127.0.0.1:3333",
+    dsn: "http://127.0.0.1:8233",
     key: 2333,
     Vue: Vue,
   });
@@ -120,18 +120,18 @@
   setTimeout(() => {
     throw new Error('manual error')
   })
-  axios("http://127.0.0.1:3333/succ").then((res) => {
+  axios("http://127.0.0.1:8233/succ").then((res) => {
     console.log("res:", res);
   });
-  axios("http://127.0.0.1:3333/failed").then((res) => {
+  axios("http://127.0.0.1:8233/failed").then((res) => {
     console.log("res:", res);
   });
-  axios("http://127.0.0.1:3333/server-err").then((res) => {
+  axios("http://127.0.0.1:8233/server-err").then((res) => {
     console.log("res:", res);
   });
 
   const xhr = new XMLHttpRequest();
-  xhr.open("get", "http://127.0.0.1:3333/succ");
+  xhr.open("get", "http://127.0.0.1:8233/succ");
   xhr.send();
   xhr.onreadystatechange = function () {
     if (xhr.readyState == 4) {
@@ -140,7 +140,7 @@
   };
 
   const xhr2 = new XMLHttpRequest();
-  xhr2.open("post", "http://127.0.0.1:3333/postReport");
+  xhr2.open("post", "http://127.0.0.1:8233/postReport");
   xhr2.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
   xhr2.send({ a: 233 });
   xhr2.onreadystatechange = function () {
