@@ -96,64 +96,66 @@
   </body>
 </html>
 <script>
-  document.cookie = "dmiddle_sso_token=2333";
-  console.log(document.cookie);
+  document.cookie = "my_token=look";
+  console.log('cookie::', document.cookie)
   TinyMonitorSdk.init({
     dsn: "http://127.0.0.1:8233",
-    key: 2333,
+    key: "localhost",
     Vue: Vue,
   });
+  
 
-  new Promise((resolve) => {
-    throw "2333";
-  });
+  // new Promise((resolve) => {
+  //   throw "2333";
+  // });
 
-  var app = new Vue({
-    el: "#app",
-    data: {
-      message: "Hello Vue!",
-    },
-    created: function () {
-      this._NULL.empty = 233;
-    },
-  });
-  setTimeout(() => {
-    throw new Error('manual error')
-  })
-  axios("http://127.0.0.1:8233/succ").then((res) => {
-    console.log("res:", res);
-  });
-  axios("http://127.0.0.1:8233/failed").then((res) => {
-    console.log("res:", res);
-  });
-  axios("http://127.0.0.1:8233/server-err").then((res) => {
-    console.log("res:", res);
-  });
+  // var app = new Vue({
+  //   el: "#app",
+  //   data: {
+  //     message: "Hello Vue!",
+  //   },
+  //   created: function () {
+  //     this._NULL.empty = 233;
+  //   },
+  // });
+  // setTimeout(() => {
+  //   throw new Error('manual error')
+  // })
+  // axios("http://127.0.0.1:8233/succ").then((res) => {
+  //   console.log("res:", res);
+  // });
+  // axios("http://127.0.0.1:8233/failed").then((res) => {
+  //   console.log("res:", res);
+  // });
+  // axios("http://127.0.0.1:8233/server-err").then((res) => {
+  //   console.log("res:", res);
+  // });
 
-  const xhr = new XMLHttpRequest();
-  xhr.open("get", "http://127.0.0.1:8233/succ");
-  xhr.send();
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState == 4) {
-      console.log("xhr_done:", xhr.responseText);
-    }
-  };
+  // const xhr = new XMLHttpRequest();
+  // xhr.open("get", "http://127.0.0.1:8233/report-test233");
+  // xhr.setRequestHeader('Channel-Code', 'XD')
+  // xhr.send(null);
+  // xhr.onreadystatechange = function () {
+  //   if (xhr.readyState == 4) {
+  //     console.log("xhr_done:", xhr.responseText);
+  //   }
+  // };
 
-  const xhr2 = new XMLHttpRequest();
-  xhr2.open("post", "http://127.0.0.1:8233/postReport");
-  xhr2.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-  xhr2.send({ a: 233 });
-  xhr2.onreadystatechange = function () {
-    if (xhr2.readyState == 4 && xhr2.status >= 200 && xhr2.status < 400) {
-      console.log("xhr_done:", xhr2.responseText);
-    }
-  };
-  throw new Error('nonon')
+  // const xhr2 = new XMLHttpRequest();
+  // xhr2.open("post", "http://127.0.0.1:8233/postReport");
+  // xhr2.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  // xhr2.send({ a: 233 });
+  // xhr2.onreadystatechange = function () {
+  //   if (xhr2.readyState == 4 && xhr2.status >= 200 && xhr2.status < 400) {
+  //     console.log("xhr_done:", xhr2.responseText);
+  //   }
+  // };
+  // throw new Error('nonon')
 
-  setTimeout(() => {
-  asd.asd()
-  }, 3000)
-  document.querySelector('#asdas').height = 233
+  // setTimeout(() => {
+  //   asd.asd()
+  // }, 3000)
+  // document.querySelector('#asdas').height = 233
 </script>
 <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue333.js"></script> -->
 <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue@2/dist/asda.css"> -->
