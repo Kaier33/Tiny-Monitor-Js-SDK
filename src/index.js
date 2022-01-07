@@ -112,6 +112,7 @@ class MonitorInstance {
       errorInfo,
       url: location.href,
       userId: this.userId,
+      key: this.key,
       deviceInfo: this._DEVICE_INFO,
       timestamp: new Date().getTime(),
       errorId: hashCode(type + JSON.stringify(errorInfo) + location.href),
