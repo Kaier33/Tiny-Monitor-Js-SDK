@@ -7,14 +7,14 @@ export default {
   input: 'src/index.js',
   output: [
     {
-      file: './dist/tiny-monitor-sdk.esm.js',
+      file: './dist/monit-js-sdk.esm.js',
       format: 'es',
-      name: 'TinyMonitorSdk'
+      name: 'MonitJsSdk'
     },
     {
-      file: './dist/tiny-monitor-sdk.min.js',
+      file: './dist/monit-js-sdk.min.js',
       format: 'iife',
-      name: 'TinyMonitorSdk'
+      name: 'MonitJsSdk'
     }
   ],
   plugins: [

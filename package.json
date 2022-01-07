@@ -1,8 +1,8 @@
 {
-  "name": "tiny-monitor-sdk",
+  "name": "monit-js-sdk",
   "version": "0.0.1",
-  "description": "tiny monitor sdk",
-  "main": "./dist/tiny-monitor-sdk.esm.js",
+  "description": "monit js sdk",
+  "main": "./dist/monit-js-sdk.esm.js",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w"
