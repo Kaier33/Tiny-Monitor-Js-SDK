@@ -88,6 +88,7 @@ class MonitorInstance {
   }
 
   reportError(data) {
+    if (!this.dsn || !this.key) return
     window.requestIdleCallback(() => {
       $post(this.dsn + "/report-err", data);
     });
