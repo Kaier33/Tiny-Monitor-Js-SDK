@@ -107,18 +107,18 @@
     throw "2333";
   });
 
-  // var app = new Vue({
-  //   el: "#app",
-  //   data: {
-  //     message: "Hello Vue!",
-  //   },
-  //   created: function () {
-  //     this._NULL.empty = 233;
-  //   },
-  // });
-  // setTimeout(() => {
-  //   throw new Error('manual error')
-  // })
+  var app = new Vue({
+    el: "#app",
+    data: {
+      message: "Hello Vue!",
+    },
+    created: function () {
+      this._NULL.empty = 233;
+    },
+  });
+  setTimeout(() => {
+    throw new Error('manual error')
+  })
   // axios("http://127.0.0.1:8233/succ").then((res) => {
   //   console.log("res:", res);
   // });
