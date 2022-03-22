@@ -49,3 +49,7 @@ export function $post(url, data = {}) {
     console.log("post err");
   }
 }
+
+export function isType(target, type) {
+  return Object.prototype.toString.call(target).slice(8, -1) === type;
+}

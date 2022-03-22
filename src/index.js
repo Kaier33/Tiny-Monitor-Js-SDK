@@ -1,11 +1,13 @@
-import { hashCode, $post } from "./utils/index";
+import { hashCode, $post, isType } from "./utils/index";
+import { ERRORTYPE } from './utils/enum';
 
 class MonitorInstance {
-  constructor({ dsn, key, Vue }) {
+  constructor({ dsn, key, Vue, ignoreErrType }) {
     this.userId = ""; // 生成规则, userAgent + 时间
     this.dsn = dsn;
     this.key = key;
     this.Vue = Vue;
+    this.ignoreErrType = ignoreErrType || null
 
     this._ERROR_STORE = [];
     this._DEVICE_INFO = {
@@ -39,6 +41,7 @@ class MonitorInstance {
       };
   }
 
+  // todo: 错误延迟上报
   proxyErrorStore() {
     const orginalArrProto = Array.prototype;
     const arrayProto = Object.create(orginalArrProto);
@@ -55,13 +58,21 @@ class MonitorInstance {
     });
     this._ERROR_STORE.__proto__ = arrayProto;
   }
-
   // Todo: 小程序. react. uni-app
   collectCatchErrorFn() {
-    this.unhandledrejectionHandle();
     this.listenErrorHandle();
-    this.vueErrorHandle();
-    this.overwriteXHR();
+    (!this.shouldBeIgnoreErrType(ERRORTYPE.unhandledrejection)) && this.unhandledrejectionHandle();
+    (!this.shouldBeIgnoreErrType(ERRORTYPE.vueError)) && this.vueErrorHandle();
+    (!this.shouldBeIgnoreErrType(ERRORTYPE.requestError)) && this.overwriteXHR();
+  }
+
+  shouldBeIgnoreErrType(type) {
+    const allowIgnore = isType(this.ignoreErrType, 'Array')
+    if (allowIgnore) {
+      return this.ignoreErrType.includes(type)
+    } else {
+      return false
+    }
   }
 
   generateUserId() {
@@ -144,35 +155,33 @@ class MonitorInstance {
    */
   listenErrorHandle() {
     const self = this;
-    window.addEventListener(
-      "error",
-      function (error) {
-        console.error("异常::", error);
-        if (error instanceof ErrorEvent) {
-          let errData = self.generateReportData({
-            type: "script_error",
-            errorInfo: {
-              colno: error.colno,
-              lineno: error.lineno,
-              message: error.message,
-              filename: error.filename,
-            },
-          });
-          self.reportError(errData);
-          self._ERROR_STORE.push(errData);
-        } else if (error.target.localName) {
-          let errData = self.generateReportData({
-            type: "resource_error",
-            errorInfo: {
-              error: error.target.outerHTML,
-            },
-          });
-          self.reportError(errData);
-          self._ERROR_STORE.push(errData);
-        }
-      },
-      true
-    );
+    window.addEventListener( "error", function (error) {
+      console.error("异常::", error);
+      if (error instanceof ErrorEvent) {
+        if (self.shouldBeIgnoreErrType(ERRORTYPE.scriptError)) return
+        let errData = self.generateReportData({
+          type: ERRORTYPE.scriptError,
+          errorInfo: {
+            colno: error.colno,
+            lineno: error.lineno,
+            message: error.message,
+            filename: error.filename,
+          },
+        });
+        self.reportError(errData);
+        self._ERROR_STORE.push(errData);
+      } else if (error.target.localName) {
+        if (self.shouldBeIgnoreErrType(ERRORTYPE.resourceError)) return
+        let errData = self.generateReportData({
+          type: ERRORTYPE.resourceError,
+          errorInfo: {
+            error: error.target.outerHTML,
+          },
+        });
+        self.reportError(errData);
+        self._ERROR_STORE.push(errData);
+      }
+    },true);
   }
   /**
    * 捕获 Vue 抛出的错误
@@ -188,7 +197,7 @@ class MonitorInstance {
         }
         // console.error("Vue_info::", info);
         const errData = self.generateReportData({
-          type: "vue_error",
+          type: ERRORTYPE.vueError,
           errorInfo: {
             vue_stack_err: err.stack,
             vue_info: `${err.toString()}----->${info}`,
@@ -226,7 +235,7 @@ class MonitorInstance {
             this.getResponseHeader("content-type")
           );
           const errData = self.generateReportData({
-            type: "request_error",
+            type: ERRORTYPE.requestError,
             errorInfo: {
               status: this.status,
               response: isJSON ? JSON.parse(this.response) : this.response,
@@ -251,13 +260,13 @@ class MonitorInstance {
   }
 }
 
-class TinyMonitorSdk {
+class MonitJsSdk {
   constructor() {
     this.monitorInstance = null;
   }
-  static init({ dsn, key, Vue }) {
+  static init({ dsn, key, Vue, ignoreErrType }) {
     if (!dsn || !key) return;
-    this.monitorInstance = new MonitorInstance({ dsn, key, Vue });
+    this.monitorInstance = new MonitorInstance({ dsn, key, Vue, ignoreErrType });
   }
   static instance() {
     return this.monitorInstance;
@@ -273,4 +282,4 @@ class TinyMonitorSdk {
   }
 }
 
-export default TinyMonitorSdk;
+export default MonitJsSdk;
