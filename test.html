@@ -6,13 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <script src="https://cdn.jsdelivr.net/npm/axios@0.23.0/dist/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script> -->
     <script src="./dist/monit-js-sdk.min.js"></script>
   </head>
   <body>
+    <button id="instance">看监控实例</button>
     <button id="jump">测试用. 跳出去</button>
     <button id="post">手动上报</button>
     <button id="clear">清除所有错误</button>
+    <button id="manualThrow">抛出错误</button>
 
     <h3>需求: 搜集上报，采集聚合，可视分析，监控告警</h3>
     <p>报错的归类:</p>
@@ -99,29 +101,30 @@
   document.cookie = "my_token=233";
   MonitJsSdk.init({
     dsn: "http://127.0.0.1:8233",
-    key: "localhost",
-    Vue: Vue
+    // key: "localhost",
+    key: "EgQBZyGmHGbgPZZ", // admin
+    // Vue: Vue
   });
   
-  new Promise((resolve) => {
-    throw "2333";
-  });
-  var app = new Vue({
-    el: "#app",
-    data: {
-      message: "Hello Vue!",
-    },
-    created: function () {
-      this._NULL.empty = 233;
-    },
-  });
-  setTimeout(() => {
-    throw new Error('manual error')
-  })
+  // new Promise((resolve) => {
+  //   throw "2333";
+  // });
+  // var app = new Vue({
+  //   el: "#app",
+  //   data: {
+  //     message: "Hello Vue!",
+  //   },
+  //   created: function () {
+  //     this._NULL.empty = 233;
+  //   },
+  // });
+  // setTimeout(() => {
+  //   throw new Error('manual error')
+  // })
 
-  axios("http://127.0.0.1:8233/failed").then((res) => {
-    console.log("res:", res)
-  });
+  // axios("http://127.0.0.1:8233/failed").then((res) => {
+  //   console.log("res:", res)
+  // });
 
   // axios("http://127.0.0.1:8233/succ").then((res) => {
   //   console.log("res:", res);
@@ -158,15 +161,27 @@
   // document.querySelector('#asdas').height = 233
 </script>
 <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue333.js"></script> -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue@2/dist/asda.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue@2/dist/asda.css"> -->
 <script>
   document.querySelector("#jump").addEventListener("click", function () {
     location.href = "https://www.baidu.com";
   });
   document.querySelector("#post").addEventListener("click", function () {
-    TinyMonitorSdk.manualPost();
+    MonitJsSdk.manualPost();
   });
   document.querySelector("#clear").addEventListener("click", function () {
-    TinyMonitorSdk.clearErrorStore();
+    MonitJsSdk.clearErrorStore();
   });
+  document.querySelector('#instance').addEventListener('click', function() {
+    console.log(MonitJsSdk.instance())
+  })
+  document.querySelector('#manualThrow').addEventListener('click', function() {
+    new Promise((resolve) => {
+      throw "2333";
+    });
+    // setTimeout(() => {
+    //   throw new Error('manual error')
+    // })
+    // document.querySelector('#asdas').height = 233
+  })
 </script>

@@ -2,11 +2,14 @@ import { hashCode, $post, isType } from "./utils/index";
 import { ERRORTYPE } from './utils/enum';
 
 class MonitorInstance {
-  constructor({ dsn, key, Vue, ignoreErrType }) {
+  constructor({ dsn, key, Vue, ignoreErrType, maxBreadcrumb }) {
     this.userId = ""; // 生成规则, userAgent + 时间
     this.dsn = dsn;
     this.key = key;
     this.Vue = Vue;
+    this.maxBreadcrumb = 50 || maxBreadcrumb
+    this.breadcrumbs = []
+
     this.ignoreErrType = ignoreErrType || null
 
     this._ERROR_STORE = [];
@@ -28,6 +31,7 @@ class MonitorInstance {
     this.generateUserId();
     this.proxyErrorStore();
     this.collectCatchErrorFn();
+    this.collectBehaviorTrack();
   }
 
   // 兼容处理
@@ -119,7 +123,7 @@ class MonitorInstance {
 
   generateReportData({ type, errorInfo }) {
     if (!type && !errorInfo) return;
-    return {
+    const error_info =  {
       type,
       errorInfo,
       url: location.href,
@@ -127,8 +131,12 @@ class MonitorInstance {
       key: this.key,
       deviceInfo: this._DEVICE_INFO,
       timestamp: new Date().getTime(),
-      errorId: hashCode(type + JSON.stringify(errorInfo) + location.href),
+      errorId: hashCode(type + JSON.stringify(errorInfo) + location.href)
     };
+    return {
+      error_info,
+      breadcrumb_trail: this.breadcrumbs
+    }
   }
   /**
    * @description   全局统一处理promise的异常
@@ -257,6 +265,36 @@ class MonitorInstance {
       this.addEventListener(reName, reFn);
       original.apply(this, args);
     };
+  }
+
+  // 操作记录
+  collectBehaviorTrack() {
+    this.onListenClick()
+  }
+  onListenClick() {
+    window.addEventListener('mousedown', event => {
+      const target = event.target
+      const { top, left } = target.getBoundingClientRect()
+      this.pushToBreadcrumbs({
+        top,
+        left,
+        type: 'behavior',
+        subType: 'click',
+        target: target.tagName,
+        outerHTML: target.outerHTML,
+        innerHTML: target.innerHTML,
+        width: target.offsetWidth,
+        height: target.offsetHeight,
+        pageURL: location.href
+      })
+    })
+  }
+
+  pushToBreadcrumbs(payload) {
+    if (this.breadcrumbs.length > this.maxBreadcrumb) {
+      this.breadcrumbs.splice(0, this.maxBreadcrumb >> 1)
+    }
+    this.breadcrumbs.push(payload)
   }
 }
 
