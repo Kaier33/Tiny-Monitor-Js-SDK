@@ -1,12 +1,25 @@
 {
-  "name": "monit-js-sdk",
-  "version": "0.0.1",
-  "description": "monit js sdk",
+  "name": "tiny-monit-js",
+  "version": "0.1.0",
+  "description": "tiny monit js sdk",
   "main": "./dist/monit-js-sdk.esm.js",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w"
   },
+  "keywords": [
+    "tiny monit js",
+    "monit js",
+    "monitor js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kaier33/Tiny-Monitor-Js-SDK.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Kaier33/Tiny-Monitor-Js-SDK/issues"
+  },
+  "homepage": "https://github.com/Kaier33/Tiny-Monitor-Js-SDK",
   "author": "Kaier33",
   "license": "MIT",
   "devDependencies": {

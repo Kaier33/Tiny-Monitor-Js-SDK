@@ -5,8 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <script src="https://cdn.jsdelivr.net/npm/axios@0.23.0/dist/axios.min.js"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/axios@0.23.0/dist/axios.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script src="./dist/monit-js-sdk.min.js"></script>
   </head>
   <body>
@@ -15,6 +15,9 @@
     <button id="post">手动上报</button>
     <button id="clear">清除所有错误</button>
     <button id="manualThrow">抛出错误</button>
+    <button id="manualThrowPromise">promise抛出错误</button>
+    <button id="manualThrowResources">加载资源抛出错误</button>
+
 
     <h3>需求: 搜集上报，采集聚合，可视分析，监控告警</h3>
     <p>报错的归类:</p>
@@ -102,22 +105,32 @@
   MonitJsSdk.init({
     dsn: "http://127.0.0.1:8233",
     // key: "localhost",
-    key: "EgQBZyGmHGbgPZZ", // admin
-    // Vue: Vue
+    key: "fhYGpCz5vAdgCwD", // admin
+    Vue: Vue
+    // ignoreErrType: ['script_error', 'resource_error', 'unhandledrejection']
+    // ignoreErrType: ['script_error', 'resource_error', 'unhandledrejection']
   });
   
   // new Promise((resolve) => {
   //   throw "2333";
   // });
-  // var app = new Vue({
-  //   el: "#app",
-  //   data: {
-  //     message: "Hello Vue!",
-  //   },
-  //   created: function () {
-  //     this._NULL.empty = 233;
-  //   },
-  // });
+  var app = new Vue({
+    el: "#app",
+    data: {
+      message: "Hello Vue!",
+    },
+    created: function () {
+      // this._NULL.empty = 233;
+    },
+    mounted() {
+      this.test()
+    },
+    methods: {
+      test() {
+        this.adawd.map(ele = ele)
+      }
+    },
+  });
   // setTimeout(() => {
   //   throw new Error('manual error')
   // })
@@ -176,12 +189,19 @@
     console.log(MonitJsSdk.instance())
   })
   document.querySelector('#manualThrow').addEventListener('click', function() {
-    new Promise((resolve) => {
-      throw "2333";
-    });
+    document.querySelector('#emptyDom').height = 233
     // setTimeout(() => {
     //   throw new Error('manual error')
     // })
-    // document.querySelector('#asdas').height = 233
+  })
+  document.querySelector('#manualThrowPromise').addEventListener('click', function() {
+    new Promise((resolve) => {
+      throw "2333";
+    });
+  })
+  document.querySelector('#manualThrowResources').addEventListener('click', function() {
+    const scriptDom = document.createElement('script')
+    scriptDom.src = 'https://cdn.jsdelivr.net/npm/vue@2/dist/vue333.js'
+    document.body.appendChild(scriptDom)
   })
 </script>

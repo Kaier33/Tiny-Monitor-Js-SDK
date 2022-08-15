@@ -2,15 +2,15 @@ import { hashCode, $post, isType } from "./utils/index";
 import { ERRORTYPE } from './utils/enum';
 
 class MonitorInstance {
-  constructor({ dsn, key, Vue, ignoreErrType, maxBreadcrumb }) {
+  constructor({ dsn, key, Vue, ignoreErrType, maxBreadcrumb, immediately }) {
     this.userId = ""; // 生成规则, userAgent + 时间
     this.dsn = dsn;
     this.key = key;
     this.Vue = Vue;
-    this.maxBreadcrumb = 50 || maxBreadcrumb
-    this.breadcrumbs = []
-
-    this.ignoreErrType = ignoreErrType || null
+    this.immediately = immediately || false;
+    this.maxBreadcrumb = 50 || maxBreadcrumb;
+    this.ignoreErrType = ignoreErrType || null;
+    this.breadcrumbs = [];
 
     this._ERROR_STORE = [];
     this._DEVICE_INFO = {
@@ -104,9 +104,13 @@ class MonitorInstance {
 
   reportError(data) {
     if (!this.dsn || !this.key) return
-    window.requestIdleCallback(() => {
+    if (this.immediately) {
       $post(this.dsn + "/report-err", data);
-    });
+    } else {
+      window.requestIdleCallback(() => {
+        $post(this.dsn + "/report-err", data);
+      });
+    }
   }
 
   // todo: 路由变化时, 上报
@@ -143,14 +147,17 @@ class MonitorInstance {
    */
   unhandledrejectionHandle() {
     const self = this;
-    window.addEventListener("unhandledrejection", function (e) {
-      // e.preventDefault(); // 开启会阻止控制台告警
+    window.addEventListener("unhandledrejection", function (error) {
+      // error.preventDefault(); // 开启会阻止控制台告警
       // Safari 接口错误也会触发这里
-      console.error("promise异常::", e.reason);
+      console.log("promise异常:", error);
       const errData = self.generateReportData({
         type: "unhandledrejection",
         errorInfo: {
-          error: e.reason,
+          error: {
+            message: typeof(error.reason) === 'string' ? error.reason : error.reason.message,
+            stack: error.reason.stack || ""
+          }
         },
       });
       self.reportError(errData);
@@ -164,7 +171,8 @@ class MonitorInstance {
   listenErrorHandle() {
     const self = this;
     window.addEventListener( "error", function (error) {
-      console.error("异常::", error);
+      error.preventDefault();
+      console.log("异常::", error);
       if (error instanceof ErrorEvent) {
         if (self.shouldBeIgnoreErrType(ERRORTYPE.scriptError)) return
         let errData = self.generateReportData({
